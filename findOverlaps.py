@@ -1,3 +1,4 @@
+import argparse
 from Bio import SeqIO
 
 """
@@ -23,10 +24,19 @@ def check_overlaps(fasta_file, min_overlap=10):
 
     return overlaps
 
-# Example usage
-fasta_file = "allViralContigs_CAP3.fasta"
-overlap_results = check_overlaps(fasta_file)
+def main():
+    parser = argparse.ArgumentParser(description="Find overlapping contigs in a FASTA file.")
+    parser.add_argument("fasta_file", help="Path to the input FASTA file.")
+    parser.add_argument("-m", "--min_overlap", type=int, default=10, help="Minimum overlap length (default: 10).")
+    
+    args = parser.parse_args()
 
-for overlap in overlap_results:
-    print(f"Overlap found: {overlap[0]} ({overlap[1]}) aligns with {overlap[2]} ({overlap[3]}) | "
-          f"Length: {overlap[4]} | Sequence: {overlap[5]}")
+    overlap_results = check_overlaps(args.fasta_file, args.min_overlap)
+
+    for overlap in overlap_results:
+        print(f"Overlap found: {overlap[0]} ({overlap[1]}) aligns with {overlap[2]} ({overlap[3]}) | "
+              f"Length: {overlap[4]} | Sequence: {overlap[5]}")
+
+if __name__ == "__main__":
+    main()
+
