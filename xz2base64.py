@@ -1,21 +1,11 @@
 import base64
+import sys
 
-"""
-To insert the base64 file in the code:
+xz_file = sys.argv[1]
+b64_file = sys.argv[2]
 
-import base64, lzma
+with open(xz_file, "rb") as f:
+    encoded = base64.b64encode(f.read()).decode('utf-8')
 
-b64_file = """ """
-
-compressed_b64_file = base64.b64decode(b64_file)
-file = lzma.decompress(compressed_b64_file)
-
-"""
-
-
-with open("compressed_file.xz", "rb") as f:
-    encoded = base64.b64encode(f.read()).decode()
-
-with open("compressed_file.base64.py", "w") as f:
-    f.write(f'eggNOG-index = """{encoded}"""')
-
+with open(b64_file, "w") as f:
+    f.write(f'XZ_DATA = """{encoded}"""')
