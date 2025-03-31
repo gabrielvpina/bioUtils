@@ -1,7 +1,10 @@
 import pyhmmer
 import collections
 
-# result structure
+'''
+make a multiprocessing hmmsearch using pyHMMER
+'''
+
 Result = collections.namedtuple("Result", ["query", "subjID", "bitscore", "start", "end"])
 
 hmm_file = "path/to/model.hmm"  
