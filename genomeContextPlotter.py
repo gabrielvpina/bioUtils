@@ -125,7 +125,7 @@ for region in regions:
                     strand = feature.location.strand
                     label = feature.qualifiers.get("ID", [feature.type])[0]
 
-                    # Adiciona a feature no formato esperado pela biblioteca
+                    # Add featrures
                     features.append(
                         GraphicFeature(start=start, end=end, strand=strand, label=label)
                     )
@@ -142,19 +142,19 @@ for region in regions:
                 
                 print(f"Processing {file_name}...")
                 
-                # Extrai as features do arquivo GFF3
+                # extract features from gff file
                 features = parse_gff3(outputFile)
                 
-                # Verifica se há features para processar
+                
                 if not features:
                     print(f"Error: None feature found in {file_name}.")
                     continue
                 
-                # Cria o GraphicRecord
+                # create GraphicRecord
                 sequence_length = max(feature.end for feature in features)
                 graphic_record = GraphicRecord(sequence_length=sequence_length, features=features)
                 
-                # Plota o gráfico e salva a imagem
+                # plot and save
                 ax, _ = graphic_record.plot(figure_width=10)
                 ax.figure.savefig(output_path, format="pdf")
                 print(f"Gráfico salvo em {output_path}")
