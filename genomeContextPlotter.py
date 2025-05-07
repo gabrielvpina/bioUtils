@@ -125,7 +125,7 @@ for region in regions:
                     strand = feature.location.strand
                     label = feature.qualifiers.get("ID", [feature.type])[0]
 
-                    # Add featrures
+                    # add features
                     features.append(
                         GraphicFeature(start=start, end=end, strand=strand, label=label)
                     )
@@ -137,15 +137,14 @@ for region in regions:
 
         for file_name in os.listdir(input_directory):
             if file_name.endswith("Norm.gff"):
-                input_path = os.path.join(input_directory, file_name)
-                output_path = os.path.join(output_directory, f"{file_name}.pdf")
+                output_path = outputFile.replace("_contextNorm.gff","_context.pdf")
                 
                 print(f"Processing {file_name}...")
                 
-                # extract features from gff file
+                # features from GFF
                 features = parse_gff3(outputFile)
                 
-                
+               
                 if not features:
                     print(f"Error: None feature found in {file_name}.")
                     continue
