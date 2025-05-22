@@ -8,7 +8,7 @@ import argparse
 # parse arguments
 parser = argparse.ArgumentParser(description='This script use genomic FASTA, GFF and BED files to create a genomic context of a region.')
 parser.add_argument('--genome', '-g', required=True, help='Genomic FASTA file')
-parser.add_argument('--annot', '-a', required=True, help='GFF file of the species.')
+parser.add_argument('--annot', '-a', required=False, help='GFF file of the species.')
 parser.add_argument('--bed', '-b', required=True, help='BED file with the regions of interest: chrom|start|end|name|0|strand')
 parser.add_argument('--context', '-c', type=int, default=10000, help='Integer. Number in nt of flanking regions.')
 parser.add_argument('--outdir', '-o', required=True, help='Output directory name.')
@@ -215,15 +215,16 @@ for scaffold, regions in regions_by_scaffold.items():
         # Create output files
         output_gff_file = os.path.join(ind_path, f"{group_name}_context.gff")
         
-        # Extract flanking regions for all regions in the group
-        extract_flanking_regions(args.annot, scaffold, flanking_start, flanking_end, region_group, output_gff_file)
-        
-        # Adjust GFF coordinates
-        outputFile = os.path.join(ind_path, f"{group_name}_contextNorm.gff")
-        adjust_gff_coordinates(output_gff_file, outputFile)
-        
-        # Create plot
-        plot_gff3_files(ind_path, ind_path)
+        if args.annot:
+            # Extract flanking regions for all regions in the group
+            extract_flanking_regions(args.annot, scaffold, flanking_start, flanking_end, region_group, output_gff_file)
+            
+            # Adjust GFF coordinates
+            outputFile = os.path.join(ind_path, f"{group_name}_contextNorm.gff")
+            adjust_gff_coordinates(output_gff_file, outputFile)
+            
+            # Create plot
+            plot_gff3_files(ind_path, ind_path)
         
         # Create temporary BED file for this group
         temp_bed_file = os.path.join(ind_path, f"{group_name}_regions.bed")
