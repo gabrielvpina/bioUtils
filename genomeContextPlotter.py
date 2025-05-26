@@ -1,9 +1,12 @@
 import os
 from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 from dna_features_viewer import GraphicFeature, GraphicRecord
 from BCBio import GFF
 import subprocess
 import argparse
+import matplotlib.pyplot as plt
 
 # parse arguments
 parser = argparse.ArgumentParser(description='This script use genomic FASTA, GFF and BED files to create a genomic context of a region.')
@@ -31,6 +34,13 @@ if not os.path.exists(new_directory_path):
 else:
     print(f"Directory '{new_directory_path}' already exists.")
 
+# Load genome sequences into memory for CDS extraction
+print("Loading genome sequences...")
+genome_sequences = {}
+with open(args.genome, 'r') as genome_file:
+    for record in SeqIO.parse(genome_file, 'fasta'):
+        genome_sequences[record.id] = record.seq
+print(f"Loaded {len(genome_sequences)} sequences from genome")
 
 # open BED file and parse regions
 regions_by_scaffold = {}
@@ -106,34 +116,64 @@ def extract_flanking_regions(gff3_file, scaffold, start, end, region_features, o
                 f"{scaffold}\tContextScript\tRegionOfInterest\t{region_start}\t{region_end}\t.\t{strand_symbol}\t.\tID={name}_{region_start}_{region_end};Note=Region_of_Interest\n"
             )
 
-def adjust_gff_coordinates(input_file, output_file):
-    """adjust the gff file to start from 0"""
-    with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
-        min_start = None
-
-        # find minor value
-        for line in infile:
+def extract_cds_sequences(gff_file, scaffold, genome_seq, output_fasta):
+    """Extract CDS sequences from the genome based on GFF annotations"""
+    cds_sequences = []
+    
+    with open(gff_file, 'r') as gff:
+        for line in gff:
             if line.startswith("#") or line.strip() == "":
                 continue
-            parts = line.split("\t")
-            start = int(parts[3])
-            if min_start is None or start < min_start:
-                min_start = start
-
-        infile.seek(0)  # back to top
-
-        # adjust coordinates based on minor value
-        for line in infile:
-            if line.startswith("#") or line.strip() == "":
-                outfile.write(line)
+            
+            fields = line.split("\t")
+            if len(fields) < 9:
                 continue
+                
+            feature_scaffold = fields[0]
+            feature_type = fields[2]
+            feature_start = int(fields[3]) - 1  # Convert to 0-based indexing
+            feature_end = int(fields[4])
+            strand = fields[6]
+            attributes = fields[8]
+            
+            # Only process CDS features
+            if feature_type.lower() == 'cds' and feature_scaffold == scaffold:
+                # Extract sequence
+                if scaffold in genome_sequences:
+                    cds_seq = genome_sequences[scaffold][feature_start:feature_end]
+                    
+                    # Reverse complement if on negative strand
+                    if strand == '-':
+                        cds_seq = cds_seq.reverse_complement()
+                    
+                    # Parse attributes to get ID
+                    attr_dict = {}
+                    for attr in attributes.split(';'):
+                        if '=' in attr:
+                            key, value = attr.split('=', 1)
+                            attr_dict[key] = value
+                    
+                    # Create sequence ID
+                    seq_id = attr_dict.get('ID', f"CDS_{feature_start+1}_{feature_end}")
+                    description = f"{scaffold}:{feature_start+1}-{feature_end}({strand})"
+                    
+                    # Create SeqRecord
+                    seq_record = SeqRecord(
+                        cds_seq,
+                        id=seq_id,
+                        description=description
+                    )
+                    cds_sequences.append(seq_record)
+    
+    # Write CDS sequences to FASTA file
+    if cds_sequences:
+        with open(output_fasta, 'w') as output_handle:
+            SeqIO.write(cds_sequences, output_handle, 'fasta')
+        print(f"Extracted {len(cds_sequences)} CDS sequences to {output_fasta}")
+    else:
+        print(f"No CDS sequences found in {gff_file}")
 
-            parts = line.split("\t")
-            parts[3] = str(int(parts[3]) - min_start)  # adjust start
-            parts[4] = str(int(parts[4]) - min_start)  # adjust end
-            outfile.write("\t".join(parts))  # write adjusted line
-
-def parse_gff3(file_path):
+def parse_gff3_original(file_path):
     """read and parse GFF file"""
     features = []
     with open(file_path, 'r') as gff_file:
@@ -143,7 +183,6 @@ def parse_gff3(file_path):
                 end = feature.location.end
                 strand = feature.location.strand
                 label = feature.qualifiers.get("ID", [feature.type])[0]
-
                 # Add feature in the format expected by the library
                 features.append(
                     GraphicFeature(start=start, end=end, strand=strand, label=label)
@@ -153,29 +192,50 @@ def parse_gff3(file_path):
 def plot_gff3_files(input_directory, output_directory):
     """process gff files for each plot"""
     os.makedirs(output_directory, exist_ok=True)
-
+    
     for file_name in os.listdir(input_directory):
-        if file_name.endswith("Norm.gff"):
-            output_path = os.path.join(output_directory, file_name.replace("_contextNorm.gff","_context.pdf"))
-            
+        if file_name.endswith("context.gff"):
+            output_path = os.path.join(output_directory, file_name.replace("_context.gff", "_context.pdf"))
             print(f"Processing {file_name}...")
             
             # Extract features from GFF3 file
-            features = parse_gff3(os.path.join(input_directory, file_name))
+            features = parse_gff3_original(os.path.join(input_directory, file_name))
             
             # Check if there are features to process
             if not features:
                 print(f"Error: No features found in {file_name}.")
                 continue
             
-            # Create GraphicRecord
-            sequence_length = max(feature.end for feature in features)
-            graphic_record = GraphicRecord(sequence_length=sequence_length, features=features)
+            # Find the minimum start position and adjust coordinates
+            min_start = min(feature.start for feature in features)
+            max_end = max(feature.end for feature in features)
+            
+            # Adjust feature coordinates to start from 0
+            adjusted_features = []
+            for feature in features:
+                adjusted_feature = GraphicFeature(
+                    start=feature.start - min_start,
+                    end=feature.end - min_start,
+                    strand=feature.strand,
+                    label=feature.label
+                )
+                adjusted_features.append(adjusted_feature)
+            
+            # Create GraphicRecord with adjusted sequence length
+            sequence_length = max_end - min_start
+            graphic_record = GraphicRecord(sequence_length=sequence_length, features=adjusted_features)
             
             # Plot and save the image
-            ax, _ = graphic_record.plot(figure_width=10)
+            ax, *_ = graphic_record.plot(figure_width=10)
+            
+            # Add original coordinates to the plot title or labels if needed
+            ax.set_title(f"Sequence region: {min_start}-{max_end}")
+            
             ax.figure.savefig(output_path, format="pdf")
             print(f"Graph saved at {output_path}")
+            
+            # Close the figure to free memory
+            plt.close(ax.figure)
 
 def create_bed_for_region(region_group, scaffold, output_bed):
     """Create a BED file for a group of regions"""
@@ -218,14 +278,14 @@ for scaffold, regions in regions_by_scaffold.items():
         if args.annot:
             # Extract flanking regions for all regions in the group
             extract_flanking_regions(args.annot, scaffold, flanking_start, flanking_end, region_group, output_gff_file)
-            
-            # Adjust GFF coordinates
-            outputFile = os.path.join(ind_path, f"{group_name}_contextNorm.gff")
-            adjust_gff_coordinates(output_gff_file, outputFile)
-            
+
+            # Extract CDS sequences from the context GFF
+            cds_fasta_file = os.path.join(ind_path, f"{group_name}_CDS_sequences.fasta")
+            extract_cds_sequences(output_gff_file, scaffold, genome_sequences[scaffold] if scaffold in genome_sequences else None, cds_fasta_file)
+
             # Create plot
             plot_gff3_files(ind_path, ind_path)
-        
+   
         # Create temporary BED file for this group
         temp_bed_file = os.path.join(ind_path, f"{group_name}_regions.bed")
         create_bed_for_region(region_group, scaffold, temp_bed_file)
