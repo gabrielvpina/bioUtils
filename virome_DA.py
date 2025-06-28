@@ -317,7 +317,7 @@ def main():
     print(f"Total samples: {len(fastq_files)}")
     print(f"Successfully processed: {successful_samples}")
     print(f"Failed: {failed_samples}")
-    print("\n=== Bioinformatics Pipeline Completed ===")
+    print("\n=== Pipeline Completed ===")
 
 
 if __name__ == "__main__":
