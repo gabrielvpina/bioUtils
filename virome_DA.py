@@ -3,14 +3,11 @@
 Contig assembly for pair-end libraries.
 Suffix to read files: "_1.fastq.gz" and "_2.fastq.gz"
 
-This script performs a complete bioinformatics pipeline:
+This script performs the pipeline:
 1. Fastp trimming
 2. STAR alignment with unmapped read extraction
 3. megahit assembly
 4. Extraction of contigs
-
-Each library is processed completely before moving to the next one,
-and temporary files are removed after successfully obtaining the final contig.
 
 Usage:
     python bioinformatics_pipeline.py --fastq_dir FASTQ_DIR [options]
