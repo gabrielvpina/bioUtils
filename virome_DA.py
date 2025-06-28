@@ -31,7 +31,7 @@ def parse_arguments():
     # Required arguments
     parser.add_argument('--fastq_dir', required=True, help='Directory containing FASTQ files')
     
-    # Optional arguments with defaults
+    # Optional arguments 
     parser.add_argument('--fastp_dir', default='fastp', help='Output directory for Fastp results')
     parser.add_argument('--star_dir', default='STAR_unmapped', help='Output directory for STAR results')
     parser.add_argument('--megahit_dir', default='megahit', help='Output directory for megahit results')
@@ -64,7 +64,7 @@ def run_fastp(sample, file1, file2, args):
     out1 = os.path.join(args.fastp_dir, f"{sample}_1.fastq.gz")
     out2 = os.path.join(args.fastp_dir, f"{sample}_2.fastq.gz")
     
-    # Construct and run fastp command
+    # run fastp command
     cmd = [
         'fastp', 
         '--trim_poly_g',
@@ -84,7 +84,7 @@ def run_star(sample, file1, file2, args):
     """Run STAR alignment for a single sample."""
     print(f"\n--- Running STAR for sample {sample} ---")
     
-    # Create temporary uncompressed files
+    # temporary uncompressed files
     temp_file1 = os.path.join(args.fastp_dir, f"{sample}_1.fastq")
     temp_file2 = os.path.join(args.fastp_dir, f"{sample}_2.fastq")
     
@@ -95,7 +95,7 @@ def run_star(sample, file1, file2, args):
     with open(temp_file2, 'wb') as outfile:
         subprocess.run(['gunzip', '-c', file2], stdout=outfile, check=True)
     
-    # Construct and run STAR command
+    # run STAR command
     star_prefix = os.path.join(args.star_dir, f"{sample}_")
     cmd = [
         'STAR',
@@ -109,11 +109,11 @@ def run_star(sample, file1, file2, args):
     print(f"Running STAR for {sample}")
     subprocess.run(cmd, check=True)
     
-    # Clean up temporary uncompressed files
+    # clean temporary uncompressed files
     os.remove(temp_file1)
     os.remove(temp_file2)
     
-    # Return paths to unmapped reads
+    # paths to unmapped reads
     unmapped1 = os.path.join(args.star_dir, f"{sample}_Unmapped.out.mate1")
     unmapped2 = os.path.join(args.star_dir, f"{sample}_Unmapped.out.mate2")
     
@@ -127,7 +127,7 @@ def run_star(sample, file1, file2, args):
     with open(unmapped2, 'rb') as infile, open(unmapped2_gz, 'wb') as outfile:
         subprocess.run(['gzip', '-c'], stdin=infile, stdout=outfile, check=True)
     
-    # Remove uncompressed unmapped files
+    # remove uncompressedd unmapped files 
     os.remove(unmapped1)
     os.remove(unmapped2)
     
@@ -145,7 +145,7 @@ def run_megahit(sample, file1, file2, args):
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
     
-    # Construct and run megahit command
+    # run megahit command
     cmd = [
         'megahit',
         '-t', str(args.threads),
@@ -173,7 +173,7 @@ def extract_contigs(sample, assembly_dir, args):
         print(f"Warning: No contigs file found for {sample}, skipping...")
         return None
     
-    # Copy contigs file to output directory
+    # copy contigs file to output dir
     output_file = os.path.join(args.contigs_dir, f"{sample}.fasta")
     shutil.copy2(contigs_file, output_file)
     print(f"Copied contigs for {sample} to {output_file}")
@@ -228,14 +228,14 @@ def process_sample(sample, file1, file2, args):
     contig_file = None
     
     try:
-        # Step 1: Fastp trimming
+        # step 1: Fastp trimming
         if not args.skip_fastp:
             fastp_out1, fastp_out2 = run_fastp(sample, file1, file2, args)
         else:
             print(f"Skipping Fastp trimming for {sample}")
             fastp_out1, fastp_out2 = file1, file2
         
-        # Step 2: STAR alignment
+        # step 2: STAR alignment
         if not args.skip_star:
             star_out1, star_out2 = run_star(sample, fastp_out1, fastp_out2, args)
             input_to_megahit1, input_to_megahit2 = star_out1, star_out2
@@ -243,19 +243,19 @@ def process_sample(sample, file1, file2, args):
             print(f"Skipping STAR alignment for {sample}")
             input_to_megahit1, input_to_megahit2 = fastp_out1, fastp_out2
         
-        # Step 3: megahit assembly
+        # step 3: megahit assembly
         if not args.skip_megahit:
             megahit_dir = run_megahit(sample, input_to_megahit1, input_to_megahit2, args)
         else:
             print(f"Skipping megahit assembly for {sample}")
         
-        # Step 4: Extract contigs
+        # step 4: Extract contigs
         if not args.skip_contigs and megahit_dir is not None:
             contig_file = extract_contigs(sample, megahit_dir, args)
         else:
             print(f"Skipping contig extraction for {sample}")
         
-        # Clean up temporary files if requested
+        # clean temporary files if requested
         if not args.keep_temp_files:
             clean_temp_files(sample, args)
         
@@ -271,7 +271,7 @@ def main():
     """Main function to run the bioinformatics pipeline."""
     args = parse_arguments()
     
-    # Ensure all required directories exist
+    # ensure all required directories exist
     ensure_directories([
         args.fastq_dir,
         args.fastp_dir,
@@ -280,7 +280,7 @@ def main():
         args.contigs_dir,
     ])
     
-    # Find all _1.fastq.gz files in the input directory
+    # find all _1.fastq.gz files in the input directory
     pattern = os.path.join(args.fastq_dir, '*_1.fastq.gz')
     fastq_files = glob.glob(pattern)
     
@@ -293,7 +293,7 @@ def main():
     successful_samples = 0
     failed_samples = 0
     
-    # Process each sample
+    # process each sample
     for file1 in fastq_files:
         # Extract sample name without the _1.fastq.gz suffix
         basename = os.path.basename(file1)
