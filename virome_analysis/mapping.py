@@ -3,6 +3,17 @@ import os, sys, subprocess
 Execute mapping tools to remove host sequences.
 """
 
+
+def check_STAR_is_installed():
+    try:
+        subprocess.run(['STAR', '--version'], check=True)
+        return True
+    except subprocess.CalledProcessError:
+        print("ERROR: STAR is not installed or not in your PATH.")
+        sys.exit(1)
+
+
+
 # run STAR for pair-end data
 def run_star_PE(sample, file1, file2, args):
 
