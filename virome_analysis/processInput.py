@@ -45,8 +45,8 @@ def run_fastp_PE(sample, file1, file2, args):
         
     
     # Prepare output file paths
-    out1 = os.path.join(args.fastp_dir, f"{sample}_1.fastq.gz")
-    out2 = os.path.join(args.fastp_dir, f"{sample}_2.fastq.gz")
+    out1 = os.path.join(args.trimming_dir, f"{sample}_1.fastq.gz")
+    out2 = os.path.join(args.trimming_dir, f"{sample}_2.fastq.gz")
     
     # run fastp command
     cmd = [
@@ -64,12 +64,12 @@ def run_fastp_PE(sample, file1, file2, args):
     return out1, out2
 
 
-def run_fastp_SE(sample, file1, file2, args):
+def run_fastp_SE(sample, file1, args):
     """Run Fastp trimming for SINGLE-END samples."""
     print(f"\n--- Running Fastp for sample {sample} ---")
     
     # Prepare output file paths
-    out1 = os.path.join(args.fastp_dir, f"{sample}.fastq.gz")
+    out1 = os.path.join(args.trimming_dir, f"{sample}.fastq.gz")
     
     # run fastp command
     cmd = [
@@ -82,8 +82,11 @@ def run_fastp_SE(sample, file1, file2, args):
     print(f"Trimming {sample}. Command: {' '.join(cmd)}")
     subprocess.run(cmd, check=True)
     
-    return out1, out2
+    return out1
 # ========================================================================
+
+
+
 
 
 # Trimmomatic QC routine 
@@ -102,17 +105,22 @@ def run_trimmomatic_PE(sample, file1, file2, args):
     print(f"\n--- Running Trimmomatic for sample {sample} ---")
     
     # Prepare output file paths
-    out1 = os.path.join(args.fastp_dir, f"{sample}_1.fastq.gz")
-    out2 = os.path.join(args.fastp_dir, f"{sample}_2.fastq.gz")
+    out1 = os.path.join(args.trimming_dir, f"{sample}_1.fastq.gz")
+    out2 = os.path.join(args.trimming_dir, f"{sample}_2.fastq.gz")
     
     # run fastp command
     cmd = [
-        'Trimmomatic', 
-        '--trim_poly_g',
-        '--in1', file1,
-        '--in2', file2,
-        '--out1', out1,
-        '--out2', out2
+        'Trimmomatic', 'PE',
+        '-phred33',
+        file1,
+        file2,
+        out1,
+        out2,
+        'ILLUMINACLIP:/opt/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10',
+        'LEADING:3',
+        'TRAILING:3',
+        'SLIDINGWINDOW:4:15',
+        'MINLEN:36'
     ]
     
     print(f"Trimming {sample}. Command: {' '.join(cmd)}")
@@ -121,3 +129,27 @@ def run_trimmomatic_PE(sample, file1, file2, args):
     return out1, out2
 
 
+def run_trimmomatic_SE(sample, file1, args):
+    """Run Trimmomatic trimming for SINGLE-END samples."""
+    print(f"\n--- Running Trimmomatic for sample {sample} ---")
+    
+    # Prepare output file paths
+    out1 = os.path.join(args.trimming_dir, f"{sample}_1.fastq.gz")    
+    # run fastp command
+    cmd = [
+        'Trimmomatic', 'SE',
+        '-phred33',
+        file1,
+        out1,
+        'ILLUMINACLIP:/opt/Trimmomatic-0.39/adapters/TruSeq3-SE.fa:2:30:10',
+        'LEADING:3',
+        'TRAILING:3',
+        'SLIDINGWINDOW:4:15',
+        'MINLEN:36'
+    ]
+    
+    print(f"Trimming {sample}. Command: {' '.join(cmd)}")
+    subprocess.run(cmd, check=True)
+    
+    return out1
+# ========================================================================
