@@ -1,7 +1,10 @@
-import os
+import os, sys, subprocess
+"""
+Data processing and trimming.
+"""
 
 
-# Check files integrity
+# check if files exist
 
 def ensure_directories(dirs):
     """Create directories if they don't exist."""
