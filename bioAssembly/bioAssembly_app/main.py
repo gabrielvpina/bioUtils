@@ -30,3 +30,20 @@ def parse_arguments():
     parser.add_argument('--keep_temp_files', action='store_true', help='Keep temporary files after processing')
     
     return parser.parse_args()
+
+
+# check if files exist
+def ensure_directories(dirs):
+    """Create directories if they don't exist."""
+    for directory in dirs:
+        os.makedirs(directory, exist_ok=True)
+        print(f"Ensured directory exists: {directory}")
+
+
+def ensure_libs(args):
+    for libs in os.listdir(args.fastq_dir):
+        if libs.endswith(".fastq.gz"):
+            pass
+        else:
+            print("ERROR: The fastq files need to be in *fastq.gz* format.")
+            sys.exit(1)

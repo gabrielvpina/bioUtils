@@ -3,27 +3,6 @@ import os, sys, subprocess
 Data processing and trimming.
 """
 
-
-# check if files exist
-
-def ensure_directories(dirs):
-    """Create directories if they don't exist."""
-    for directory in dirs:
-        os.makedirs(directory, exist_ok=True)
-        print(f"Ensured directory exists: {directory}")
-
-
-def ensure_libs(args):
-    for libs in os.listdir(args.fastq_dir):
-        if libs.endswith(".fastq.gz"):
-            pass
-        else:
-            print("ERROR: The fastq files need to be in *fastq.gz* format.")
-            sys.exit(1)
-
-
-
-
 # Fastp QC routine 
 # ========================================================================
 def run_fastp_PE(sample, file1, file2, args):
