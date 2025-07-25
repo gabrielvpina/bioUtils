@@ -89,28 +89,57 @@ def extract_contigs_trinity(sample, assembly_dir, args):
 
 
 
+
+
+
 def clean_temp_files(sample, args):
     """Clean up temporary files for a sample."""
     print(f"\n--- Cleaning temporary files for sample {sample} ---")
-    
+
+
+# Set trimmed files
+#######################################################
     # Remove fastp output files
     fastp_files = [
         os.path.join(args.fastp_dir, f"{sample}_1.fastq.gz"),
         os.path.join(args.fastp_dir, f"{sample}_2.fastq.gz")
     ]
     
+    # Remove trimmomatic output files
+    trimmomatic_files = [
+        os.path.join(args.trimmomatic_dir, f"{sample}_1.fastq.gz"),
+        os.path.join(args.trimmomatic_dir, f"{sample}_2.fastq.gz")
+    ]
+#######################################################
+
+
+
     # Remove STAR output files
     star_pattern = os.path.join(args.star_dir, f"{sample}_*")
     star_files = glob.glob(star_pattern)
     
-    # Remove megahit output directory
+    # Remove assembly output directory
     megahit_dir = os.path.join(args.megahit_dir, f"{sample}_assembly")
+    spades_dir = os.path.join(args.spades_dir, f"{sample}_assembly")
+    rnaspades_dir = os.path.join(args.rnaspades_dir, f"{sample}_assembly")
+    trinity_dir = os.path.join(args.trinity_dir, f"{sample}_assembly")
     
+
+# Delete trimmed files
+#######################################################
     # Delete fastp files
     for file in fastp_files:
         if os.path.exists(file):
             os.remove(file)
             print(f"Removed {file}")
+
+    # Delete trimmomatic files
+    for file in trimmomatic_files:
+        if os.path.exists(file):
+            os.remove(file)
+            print(f"Removed {file}")
+#######################################################
+
     
     # Delete STAR files
     for file in star_files:
