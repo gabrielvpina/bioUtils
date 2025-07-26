@@ -33,9 +33,8 @@ ascii_banner = f"""
 ▗▄▄▖ ▗▄▄▄▖ ▗▄▖  ▗▄▖  ▗▄▄▖ ▗▄▄▖▗▄▄▄▖▗▖  ▗▖▗▄▄▖ ▗▖ ▗▖  ▗▖
 ▐▌ ▐▌  █  ▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌   ▐▌   ▐▛▚▞▜▌▐▌ ▐▌▐▌  ▝▚▞▘ 
 ▐▛▀▚▖  █  ▐▌ ▐▌▐▛▀▜▌ ▝▀▚▖ ▝▀▚▖▐▛▀▀▘▐▌  ▐▌▐▛▀▚▖▐▌   ▐▌  
-▐▙▄▞▘▗▄█▄▖▝▚▄▞▘▐▌ ▐▌▗▄▄▞▘▗▄▄▞▘▐▙▄▄▖▐▌  ▐▌▐▙▄▞▘▐▙▄▄▖▐▌  
+▐▙▄▞▘▗▄█▄▖▝▚▄▞▘▐▌ ▐▌▗▄▄▞▘▗▄▄▞▘▐▙▄▄▖▐▌  ▐▌▐▙▄▞▘▐▙▄▄▖▐▌
 """
-
 
 
 # Split the banner into individual lines
@@ -82,4 +81,4 @@ for line in lines:
 
 final_colored_ascii_banner = "\n".join(colored_banner_lines)
 #final_colored_ascii_banner = print("\n".join(colored_banner_lines))
-# print(final_colored_ascii_banner)
+print(final_colored_ascii_banner)

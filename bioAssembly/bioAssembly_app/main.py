@@ -60,8 +60,9 @@ def show_rich_help():
     # print(final_colored_ascii_banner) 
     
     help_text = Text()
-    help_text.append("\nA tool for sequence data processing.\n", style="italic")
-    help_text.append("More info: [link=https://example.com/yourtool]https://example.com/yourtool[/link]\n\n", style="dim blue underline")
+    help_text.append("\nA tool for sequence data processing and assembly.\n", style="italic")
+    help_text.append("More info: https://github.com/gabrielvpina/bioutils\n", style="dim blue underline")
+    help_text.append("\nQuality Control -> Alignment -> Assembly\n", style="bold green")
     console.print(help_text)
 
     # Required arguments section
@@ -179,7 +180,7 @@ if __name__ == "__main__":
     if not os.path.exists(args.outdir):
         os.makedirs(args.outdir)
 
-    
+
 
     # Parse arguments normally if help is not requested
     args = parser.parse_args()
