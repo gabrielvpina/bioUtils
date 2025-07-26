@@ -1,8 +1,5 @@
 import os, subprocess
 
-# This 
-
-
 
 # MEGAHIT Assembly
 # =============================================================================
@@ -12,8 +9,11 @@ def run_megahit_PE(sample, file1, file2, args):
     """Run megahit assembly for a PAIR-END sample."""
     print(f"\n--- Running megahit for sample {sample} ---")
     
+    if not os.path.exists(args.assembly):
+        os.makedirs(os.path.join(args.outdir, args.assembly))
+
     # Prepare output directory
-    output_dir = os.path.join(args.megahit_dir, f"{sample}_assembly")
+    output_dir = os.path.join(args.outdir, args.assembly, f"{sample}_assembly")
     
     # Remove output directory if it exists (megahit requires this)
     if os.path.exists(output_dir):
@@ -40,9 +40,12 @@ def run_megahit_PE(sample, file1, file2, args):
 def run_megahit_SE(sample, file1, args):
     """Run Megahit assembly for a SINGLE-END sample."""
     print(f"\n--- Running megahit for sample {sample} ---")
+
+    if not os.path.exists(args.assembly):
+        os.makedirs(os.path.join(args.outdir, args.assembly))
     
     # Prepare output directory
-    output_dir = os.path.join(args.megahit_dir, f"{sample}_assembly")
+    output_dir = os.path.join(args.outdir, args.assembly, f"{sample}_assembly")
     
     # Remove output directory if it exists (megahit requires this)
     if os.path.exists(output_dir):
@@ -75,9 +78,12 @@ def run_megahit_SE(sample, file1, args):
 def run_spades_PE(sample, file1, file2, args):
     """Run SPAdes assembly for a PAIR-END sample."""
     print(f"\n--- Running megahit for PAIR-END samples {sample} ---")
+
+    if not os.path.exists(args.assembly):
+        os.makedirs(os.path.join(args.outdir, args.assembly))
     
     # Prepare output directory
-    output_dir = os.path.join(args.spades_dir, f"{sample}_assembly")
+    output_dir = os.path.join(args.outdir, args.assembly, f"{sample}_assembly")
     
     # Remove output directory if it exists
     if os.path.exists(output_dir):
@@ -103,9 +109,12 @@ def run_spades_PE(sample, file1, file2, args):
 def run_spades_SE(sample, file1, args):
     """Run SPAdes assembly for a SINGLE-END sample."""
     print(f"\n--- Running megahit for SINGLE-END samples {sample} ---")
+
+    if not os.path.exists(args.assembly):
+        os.makedirs(os.path.join(args.outdir, args.assembly))
     
     # Prepare output directory
-    output_dir = os.path.join(args.spades_dir, f"{sample}_assembly")
+    output_dir = os.path.join(args.outdir, args.assembly, f"{sample}_assembly")
     
     # Remove output directory if it exists (megahit requires this)
     if os.path.exists(output_dir):
@@ -137,9 +146,12 @@ def run_spades_SE(sample, file1, args):
 def run_rnaspades_PE(sample, file1, file2, args):
     """Run rnaspades assembly for a PAIR-END sample."""
     print(f"\n--- Running rnaspades.py for PAIR-END samples {sample} ---")
+
+    if not os.path.exists(args.assembly):
+        os.makedirs(os.path.join(args.outdir, args.assembly))
     
     # Prepare output directory
-    output_dir = os.path.join(args.rnaspades_dir, f"{sample}_assembly")
+    output_dir = os.path.join(args.outdir, args.assembly, f"{sample}_assembly")
     
     # Remove output directory if it exists
     if os.path.exists(output_dir):
@@ -165,9 +177,12 @@ def run_rnaspades_PE(sample, file1, file2, args):
 def run_rnaspades_PE(sample, file1, args):
     """Run rnaspades assembly for a SINGLE-END sample."""
     print(f"\n--- Running rnaspades.py for SINGLE-END samples {sample} ---")
+
+    if not os.path.exists(args.assembly):
+        os.makedirs(os.path.join(args.outdir, args.assembly))
     
     # Prepare output directory
-    output_dir = os.path.join(args.rnaspades_dir, f"{sample}_assembly")
+    output_dir = os.path.join(args.outdir, args.assembly, f"{sample}_assembly")
     
     # Remove output directory if it exists
     if os.path.exists(output_dir):
@@ -198,9 +213,12 @@ def run_rnaspades_PE(sample, file1, args):
 def run_trinity_PE(sample, file1, file2, args):
     """Run trinity assembly for a PAIR-END sample."""
     print(f"\n--- Running trinity for PAIR-END samples {sample} ---")
+
+    if not os.path.exists(args.assembly):
+        os.makedirs(os.path.join(args.outdir, args.assembly))
     
     # Prepare output directory
-    output_dir = os.path.join(args.trinity_dir, f"{sample}_assembly")
+    output_dir = os.path.join(args.outdir, args.assembly, f"{sample}_assembly")
     
     # Remove output directory if it exists
     if os.path.exists(output_dir):
@@ -226,9 +244,12 @@ def run_trinity_PE(sample, file1, file2, args):
 def run_trinity_PE(sample, file1, args):
     """Run trinity assembly for a SINGLE-END sample."""
     print(f"\n--- Running trinity for SINGLE-END samples {sample} ---")
+
+    if not os.path.exists(args.assembly):
+        os.makedirs(os.path.join(args.outdir, args.assembly))
     
     # Prepare output directory
-    output_dir = os.path.join(args.trinity_dir, f"{sample}_assembly")
+    output_dir = os.path.join(args.outdir, args.assembly, f"{sample}_assembly")
     
     # Remove output directory if it exists
     if os.path.exists(output_dir):

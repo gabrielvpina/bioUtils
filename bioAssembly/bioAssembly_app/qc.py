@@ -1,24 +1,26 @@
 import os, subprocess
 
 
-def run_fastqc(sample, args):
+def run_fastqc(args):
     # CREATE AN OUTPUT DIRECTORY
-    """Run Fastp trimming for PAIR-END samples."""
-    print(f"\n--- Running Fastp for sample {sample} ---")
+    """Run FastQC in samples."""
+    print(f"\n--- Running Fastqc in {args.inputdir} files. ---")
 
-    outdir = os.path.join(args.fastqc_dir, f"{sample}_1.fastq.gz")
+    os.makedirs(os.path.join(args.outdir, 'fastqc'))
+
+    outdir = os.path.join(args.outdir, 'fastqc')
 
     # run fastqc command
     cmd = [
         'fastqc',
-        os.path.join(args.trimming_dir,'*'),
+        os.path.join(args.inputdir,'*'),
         '-t',
         str(args.threads),
         '--outdir',
         outdir
     ]
 
-    print(f"Trimming {sample}. Command: {' '.join(cmd)}")
+    print(f"FastQC Command: {' '.join(cmd)}")
     subprocess.run(cmd, check=True)
 
     return outdir
@@ -26,19 +28,19 @@ def run_fastqc(sample, args):
 
 def run_multiqc(args):
     """Run Multiqc to evaluate QC analysis."""
-    print(f"\n--- Running MultiQC for sample {sample} ---")
+    print(f"\n--- Running MultiQC fastqc directory. ---")
 
-    outdir = os.path.join(args.fastqc_dir, f"{sample}_1.fastq.gz")
+    os.makedirs(os.path.join(args.outdir, 'multiqc'))
 
-    # run MultiQC    command
+    outdir = os.path.join(args.outdir, 'multiqc')
+
+    # run MultiQC command
     cmd = [
-        'fastqc',
-        os.path.join(args.trimming_dir,'*'),
-        '-t',
-        str(args.threads),
+        'multiqc',
+        os.path.join(args.outdir,'fastqc'),
         '-o',
         outdir
     ]
 
-    print(f"Trimming {sample}. Command: {' '.join(cmd)}")
+    print(f"MultiQC Command: {' '.join(cmd)}")
     subprocess.run(cmd, check=True)

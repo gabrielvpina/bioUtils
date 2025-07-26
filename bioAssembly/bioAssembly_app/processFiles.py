@@ -1,12 +1,12 @@
 import os, shutil, glob
 
 
-def extract_contigs_megahit(sample, assembly_dir, args):
+def extract_contigs_megahit(sample, args):
     """Extract contigs for a single sample assembled with MEGAHIT."""
     print(f"\n--- Extracting contigs for sample {sample} (MEGAHIT) ---")
 
     # MEGAHIT's final contigs file is typically named 'final.contigs.fa'
-    contigs_file = os.path.join(assembly_dir, 'final.contigs.fa')
+    contigs_file = os.path.join(args.outdir, args.assembly, 'final.contigs.fa')
 
     # Check if contigs file exists
     if not os.path.isfile(contigs_file):
@@ -22,14 +22,14 @@ def extract_contigs_megahit(sample, assembly_dir, args):
 
 
 ######################################################
-def extract_contigs_spades(sample, assembly_dir, args):
+def extract_contigs_spades(sample, args):
     """Extract contigs for a single sample assembled with SPAdes (including metaSPAdes)."""
     print(f"\n--- Extracting contigs for sample {sample} (SPAdes) ---")
 
     # SPAdes (including metaSPAdes and regular spades.py) usually outputs contigs.fasta
     # or contigs.fasta in the 'scaffolds.fasta' file (which often includes contigs too)
     # The primary output for contigs is usually 'contigs.fasta'
-    contigs_file = os.path.join(assembly_dir, 'contigs.fasta')
+    contigs_file = os.path.join(args.outdir, args.assembly, 'contigs.fasta')
 
     # Check if contigs file exists
     if not os.path.isfile(contigs_file):
@@ -45,12 +45,12 @@ def extract_contigs_spades(sample, assembly_dir, args):
 
 
 ######################################################
-def extract_contigs_rnaspades(sample, assembly_dir, args):
+def extract_contigs_rnaspades(sample, args):
     """Extract contigs for a single sample assembled with RNAspades."""
     print(f"\n--- Extracting contigs for sample {sample} (RNAspades) ---")
 
     # RNAspades also typically outputs 'contigs.fasta' similar to regular SPAdes
-    contigs_file = os.path.join(assembly_dir, 'contigs.fasta')
+    contigs_file = os.path.join(args.outdir, args.assembly, 'contigs.fasta')
 
     # Check if contigs file exists
     if not os.path.isfile(contigs_file):
@@ -66,13 +66,13 @@ def extract_contigs_rnaspades(sample, assembly_dir, args):
 
 
 ######################################################
-def extract_contigs_trinity(sample, assembly_dir, args):
+def extract_contigs_trinity(sample, args):
     """Extract contigs (transcripts) for a single sample assembled with Trinity."""
     print(f"\n--- Extracting contigs for sample {sample} (Trinity) ---")
 
     # Trinity's main output file containing assembled transcripts (contigs)
     # is usually named 'Trinity.fasta' and located directly in the assembly_dir
-    contigs_file = os.path.join(assembly_dir, 'Trinity.fasta')
+    contigs_file = os.path.join(args.outdir, args.assembly, 'Trinity.fasta')
 
     # Check if contigs file exists
     if not os.path.isfile(contigs_file):

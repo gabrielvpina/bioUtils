@@ -44,8 +44,8 @@ parser.add_argument('--remove-aligned', action='store_true')
 parser.add_argument('--remove-assembled', action='store_true')
 
 # Config args
-parser.add_argument('--threads', type=int, default=4)
-parser.add_argument('--memory', type=int, default=8)
+parser.add_argument('--threads', '-t', type=int, default=4)
+parser.add_argument('--memory', '-m', type=int, default=8)
 
 
 # rich console
@@ -162,8 +162,6 @@ if "-h" in sys.argv or "--help" in sys.argv:
 args = parser.parse_args()
 
 if __name__ == "__main__":
-
-
     # Show message if no arguments are provided
     if len(sys.argv) == 1:
         console.print(
@@ -171,11 +169,17 @@ if __name__ == "__main__":
             style="red"
         )
         sys.exit(1)
-
     # Check for help before parsing
     if "-h" in sys.argv or "--help" in sys.argv:
         show_rich_help(parser)
         sys.exit(0)
+
+    # Create directory
+    import os
+    if not os.path.exists(args.outdir):
+        os.makedirs(args.outdir)
+
+    
 
     # Parse arguments normally if help is not requested
     args = parser.parse_args()
