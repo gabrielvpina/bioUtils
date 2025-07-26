@@ -4,30 +4,37 @@ Downstream analysis of assembled contigs.
 Trim, map and assemble.
 """
 
-import argparse
-
+import argparse, os, sys
 
 def parse_arguments():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description='Bioinformatics Pipeline')
-    
+
+    parser = argparse.ArgumentParser(
+    add_help=False,  
+    formatter_class=argparse.RawDescriptionHelpFormatter)
+
     # Required arguments
-    parser.add_argument('--input_dir', '-i', required=True, help='Directory containing "fastq.gz" files')
+    parser.add_argument('--inputdir', '-i', required=True)
+    parser.add_argument('--outdir', '-o', required=True)
     
-    # Optional arguments 
-    parser.add_argument('--fastp_dir', default='fastp', help='Output directory for Fastp results')
-    parser.add_argument('--star_dir', default='STAR_unmapped', help='Output directory for STAR results')
-    parser.add_argument('--megahit_dir', default='megahit', help='Output directory for megahit results')
-    parser.add_argument('--contigs_dir', default='assembled_contigs', help='Output directory for assembled contigs')
-    parser.add_argument('--star_genome', default='star_genome', help='STAR genome directory')
-    parser.add_argument('--megahit_path', default='megahit.py', help='Path to megahit executable')
-    parser.add_argument('--threads', type=int, default=7, help='Number of threads to use')
-    parser.add_argument('--memory', type=int, default=14, help='Memory limit for megahit in GB')
-    parser.add_argument('--skip_fastp', action='store_true', help='Skip Fastp trimming step')
-    parser.add_argument('--skip_star', action='store_true', help='Skip STAR alignment step')
-    parser.add_argument('--skip_megahit', action='store_true', help='Skip megahit assembly step')
-    parser.add_argument('--skip_contigs', action='store_true', help='Skip copying contigs step')
-    parser.add_argument('--keep_temp_files', action='store_true', help='Keep temporary files after processing')
+    # Modules arguments 
+    parser.add_argument('--skip-qc', action='store_true')
+    parser.add_argument('--skip-trim', action='store_true')
+    parser.add_argument('--trim', choices=['fastp', 'trimmomatic'], required=True)
+    parser.add_argument('--skip-align', action='store_true')
+    parser.add_argument('--assembly', choices=['megahit', 'spades', 'rnaspades', 'trinity'], required=True)
+    parser.add_argument('--integrative-assembly', default='MT') 
+    # the initial letter of each assembly tool to be combined: 'MT', SRT', 'MSRT', etc.
+
+    # Temporary files - By default all the temp files are saved after processing
+    parser.add_argument('--remove-all', action='store_true')
+    parser.add_argument('--remove-trimmed', action='store_true')
+    parser.add_argument('--remove-aligned', action='store_true')
+    parser.add_argument('--remove-assembled', action='store_true')
+
+    # Config args
+    parser.add_argument('--threads', type=int, default=4)
+    parser.add_argument('--memory', type=int, default=8)
     
     return parser.parse_args()
 
