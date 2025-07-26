@@ -1,5 +1,3 @@
-
-
 # this is pure LLM code 
 def get_gradient_color(progress, colors):
     """
