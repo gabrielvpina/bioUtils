@@ -32,6 +32,7 @@ parser.add_argument('--layout', required=True, choices=['single', 'paired'])
 parser.add_argument('--skip-qc', action='store_true')
 parser.add_argument('--skip-trim', action='store_true')
 parser.add_argument('--trim', choices=['fastp', 'trimmomatic'], required=True)
+parser.add_argument('--align-index')
 parser.add_argument('--skip-align', action='store_true')
 parser.add_argument('--assembly', choices=['megahit', 'spades', 'rnaspades', 'trinity'], required=True)
 parser.add_argument('--integrative-assembly', default='MT') 
@@ -61,18 +62,21 @@ def show_rich_help():
     
     help_text = Text()
     help_text.append("\nA tool for sequence data processing and assembly.\n", style="italic")
-    help_text.append("More info: https://github.com/gabrielvpina/bioutils\n", style="dim blue underline")
-    help_text.append("\nQuality Control -> Alignment -> Assembly\n", style="bold green")
+    help_text.append("More info: https://github.com/gabrielvpina/bioutils\n", style="dim cyan underline")
+    help_text.append("\nQuality Control -> QC reports and trimmed reads", style="bold green")
+    help_text.append("\nAlignment -> Removal of host reads in libraries", style="bold green")
+    help_text.append("\nAssembly -> Specific tool or Integrative assembly\n", style="bold green")
+    
     console.print(help_text)
 
     # Required arguments section
     required_panel = Panel(
         "[bold white]--inputdir/-i[/bold white]\n"
-        "  Input directory containing raw sequencing data.\n\n"
+        "  Input directory containing *.fastq.gz files.\n\n"
         "[bold white]--outdir/-o[/bold white]\n"
         "  Output directory to save all generated files.\n\n"
         "[bold white]--layout[/bold white]\n"
-        "  If the libraries in input directory is single-end or paired-end.",
+        "  'single' for Single-end and 'paired' for Paired-end data.",
         title="[bold cyan]REQUIRED ARGUMENTS[/bold cyan]",
         border_style="cyan",
         width=70,
@@ -89,6 +93,8 @@ def show_rich_help():
         "   Skip the read trimming step.\n\n"
         "[bold white]--trim[/bold white] [choices: fastp, trimmomatic]\n"  
         "   Specify the trimming tool to use [bold white](fastp or trimmomatic)[/bold white].\n\n"
+        "[bold white]--align-index[/bold white]\n" 
+        "   STAR index with host sequences to be removed.\n\n"
         "[bold white]--skip-align[/bold white]\n" 
         "   Skip the alignment step.\n\n"
         "[bold white]--assembly[/bold white] \n"  
